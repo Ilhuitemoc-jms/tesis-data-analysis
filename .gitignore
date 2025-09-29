@@ -51,6 +51,29 @@ coverage.xml
 .pytest_cache/
 cover/
 
+#-------------------------------------------------------------------------------------------------------------
+
+# Previene subir datasets que pueden ser de varios GB
+*.csv
+*.parquet  
+*.json
+*.h5
+*.pickle
+
+# Evita subir modelos entrenados que ocupan mucho espacio  
+models/
+saved_models/
+*.ckpt
+tensorboard_logs/
+
+# Archivos temporales específicos de Spark
+metastore_db/
+derby.log
+spark-warehouse/
+
+#-------------------------------------------------------------------------------------------------------------
+
+
 # Translations
 *.mo
 *.pot
