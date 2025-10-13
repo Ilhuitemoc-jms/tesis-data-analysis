@@ -1,0 +1,53 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Servicio de MongoDB para almacenar los datos
+  mongodb:
+    build: ./mongodb
+    container_name: mongodb_votaciones
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: votaciones2025
+      MONGO_INITDB_DATABASE: votaciones_usa
+    volumes:
+      # Persistencia de datos
+      - mongo_data:/data/db
+      # Configuración personalizada
+      - ./mongodb/mongod.conf:/etc/mongod.conf
+    networks:
+      - votaciones_network
+    command: mongod --config /etc/mongod.conf
+
+  # PySpark con JupyterLab integrado (todo en uno)
+  pyspark:
+    build: ./pyspark
+    container_name: pyspark_analytics
+    ports:
+      - "8888:8888"  # JupyterLab - AQUÍ ANALIZAS
+      - "4040:4040"  # Spark UI - AQUÍ MONITOREAS (opcional)
+      #- "4041:4041"  # Spark UI adicional (por si abres múltiples contextos)
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+      - GRANT_SUDO=yes
+      - MONGO_URI=mongodb://admin:votaciones2025@mongodb:27017/
+    volumes:
+      # Notebooks donde trabajarás
+      - ./notebooks:/home/jovyan/notebooks
+      # Scripts auxiliares
+      - ./scripts:/home/jovyan/scripts
+      # Datos parquet
+      - ./data:/home/jovyan/data
+    networks:
+      - votaciones_network
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:
+
+networks:
+  votaciones_network:
+    driver: bridge

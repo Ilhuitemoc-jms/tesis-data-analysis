@@ -94,7 +94,7 @@ def get_parquet_base(path):
 def main():
 
     #Datos de votación
-    #votes = get_parquet_head('../bases/FI - Siseco - 201904 a 202408.parquet')
+    #votes = get_parquet_head('../bases/part-0.parquet')
 
     base = get_parquet_base('../bases/voting_data')
 
@@ -103,23 +103,7 @@ if __name__ ==  '__main__':
     main()
 
 
-""" def get_parquet_base(path):  
-    
-    #list of tables or df in the path, here we'll add all the information for gather later
-    data_tables = []
-
-    while document in path.os:
-
-        table =                     #BLABLABLABA
-
-    complete_base = pd.concat(data_tables, ignore_index=True)
+    #Grahp X
+    #Mlib
 
 
-    #------------------------------------ print data ------------------------------------
-    #print(votes.head())
-    print(f"Dimensiones: {complete_base.shape}")
-    print(f"Columnas: {list(complete_base.columns)}")
-    print(complete_base.iloc[1])
-
-   
-    return complete_base """

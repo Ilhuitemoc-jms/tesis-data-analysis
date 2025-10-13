@@ -1,0 +1,110 @@
+version: "3.9"
+
+services:
+  # Cola de eventos compatible Kafka
+  redpanda:
+    image: redpandadata/redpanda:v24.1.10
+    command:
+      - redpanda
+      - start
+      - --mode=dev-container
+      - --kafka-addr=0.0.0.0:9092
+      - --advertise-kafka-addr=redpanda:9092
+    ports:
+      - "9092:9092"   # Kafka (para pruebas básicas)
+    networks:
+      - dlnet
+
+  # Object storage S3 local (MinIO)
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: admin12345
+    volumes:
+      - ./minio-data:/data
+    ports:
+      - "9000:9000"   # S3 endpoint
+      - "9001:9001"   # Consola web
+    networks:
+      - dlnet
+
+  # Inicializa bucket "lake" en MinIO
+  minio-setup:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 admin admin12345 &&
+      mc mb -p local/lake || true
+      "
+    networks:
+      - dlnet
+
+  mongodb:
+    image: mongo:6
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-root123}
+    volumes:
+      - ./mongo-data:/data/db
+      - ./scripts/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    ports:
+      - "27017:27017"
+    networks: [dlnet]
+
+  connect:
+    image: debezium/connect:2.6
+    depends_on: [redpanda, mongodb]
+    environment:
+      BOOTSTRAP_SERVERS: redpanda:9092
+      GROUP_ID: 1
+      CONFIG_STORAGE_TOPIC: connect_configs
+      OFFSET_STORAGE_TOPIC: connect_offsets
+      STATUS_STORAGE_TOPIC: connect_statuses
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      # Aumenta memoria si hace falta
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx1g"
+    ports:
+      - "8083:8083"   # REST API de Connect
+    networks: [dlnet]
+
+  # Spark Master
+  spark-master:
+    image: bitnami/spark:3.5
+    environment:
+      - SPARK_MODE=master
+    ports:
+      - "8080:8080"   # UI master
+      - "7077:7077"   # RPC
+    volumes:
+      - ./apps:/opt/spark-apps
+    networks:
+      - dlnet
+
+  # Spark Worker
+  spark-worker:
+    image: bitnami/spark:3.5
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_CORES=8
+      - SPARK_WORKER_MEMORY=48g
+    ports:
+      - "8081:8081"   # UI worker
+    volumes:
+      - ./apps:/opt/spark-apps
+    networks:
+      - dlnet
+
+networks:
+  dlnet:
+    driver: bridge

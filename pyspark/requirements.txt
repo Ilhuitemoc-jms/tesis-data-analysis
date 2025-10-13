@@ -1,0 +1,17 @@
+# pyspark/requirements.txt
+# Dependencias mínimas necesarias para análisis de votaciones
+
+# MongoDB connector para Python
+pymongo==4.6.1
+
+# Lectura de archivos Parquet
+#pyarrow==14.0.2
+fastparquet==2023.10.1
+
+# Manipulación de datos
+#pandas==2.1.4
+#numpy==1.26.2
+
+# Visualización de datos
+#matplotlib==3.8.2
+#seaborn==0.13.0

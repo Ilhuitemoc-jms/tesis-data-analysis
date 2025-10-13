@@ -71,6 +71,30 @@ metastore_db/
 derby.log
 spark-warehouse/
 
+# Directorio de datos de votaciones (166M registros)
+data/
+voting_data/
+
+# Logs de MongoDB
+mongodb/*.log
+mongodb/mongod.log
+
+# Volúmenes de Docker (datos persistentes de MongoDB)
+mongo_data/
+
+# Archivos temporales de carga
+*.tmp
+*.temp
+
+# Notebooks con outputs pesados (opcional: puedes versionarlos sin output)
+notebooks/*-checkpoint.ipynb
+notebooks/*.nbconvert.ipynb
+
+# Resultados de análisis pesados
+results/*.csv
+results/*.parquet
+output/
+
 #-------------------------------------------------------------------------------------------------------------
 
 
