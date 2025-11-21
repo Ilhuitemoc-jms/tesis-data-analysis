@@ -8,6 +8,9 @@ pymongo==4.6.1
 #pyarrow==14.0.2
 fastparquet==2023.10.1
 
+#Analisis de informacion
+tensorflow>=2.13.0,<2.20
+
 # Manipulación de datos
 #pandas==2.1.4
 #numpy==1.26.2

@@ -6,7 +6,6 @@ Adaptado para correr dentro del contenedor PySpark/JupyterLab
 import os
 import sys
 import time
-from datetime import datetime
 import pandas as pd
 import pymongo
 from pymongo import MongoClient, InsertOne
@@ -18,16 +17,15 @@ DATABASE_NAME = "votaciones_usa"
 COLLECTION_NAME = "registros_votacion"
 
 # Parámetros de optimización
-BATCH_SIZE = 10000
-MAX_POOL_SIZE = 100
-
+BATCH_SIZE = 35000  # Optimizado para 64GB RAM (no tan agresivo como 30000) 10000
+MAX_POOL_SIZE = 250  # Aumentado para mejor concurrencia 100
 
 def get_mongo_connection():
     """
     Establece conexión optimizada con MongoDB
     Usa el nombre del servicio 'mongodb' definido en docker-compose
     """
-    client = MongoClient(
+    """ client = MongoClient(
         MONGO_URI,
         maxPoolSize=MAX_POOL_SIZE,
         minPoolSize=10,
@@ -37,6 +35,18 @@ def get_mongo_connection():
         socketTimeoutMS=None,
         retryWrites=True,
         w=1
+    ) """
+    # En la función get_mongo_connection()
+    client = MongoClient(
+        MONGO_URI,
+        maxPoolSize=200,  # Aumentado de 100
+        minPoolSize=20,   # Aumentado de 10
+        maxIdleTimeMS=45000,
+        serverSelectionTimeoutMS=5000,
+        connectTimeoutMS=10000,
+        socketTimeoutMS=None,
+        retryWrites=True,
+        w=1  # SEGURO: Confirma escritura en nodo primario
     )
     
     db = client[DATABASE_NAME]
@@ -105,8 +115,6 @@ def process_parquet_file(file_info):
         # Agrega columnas de metadatos
         df['state'] = state
         df['county'] = county
-        df['source_file'] = file_name
-        df['loaded_at'] = datetime.utcnow()
         
         # Convierte a lista de diccionarios (documentos MongoDB)
         documents = df.to_dict('records')
