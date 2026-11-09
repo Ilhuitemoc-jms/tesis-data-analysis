@@ -55,8 +55,7 @@ cover/
 
 # Previene subir datasets que pueden ser de varios GB
 *.csv
-*.parquet  
-*.json
+*.parquet
 *.h5
 *.pickle
 

@@ -1,0 +1,31 @@
+{
+    "title": "Massive Voting Data Analysis Pipeline - Anomaly Detection with LSTM and PySpark",
+    "upload_type": "software",
+    "description": "Data analysis workflow for massive voting data using PySpark and MongoDB, with Docker-based infrastructure and recurrent neural network (LSTM/RNN) scripts for anomaly detection in electoral data. Developed as undergraduate thesis at UNAM. Companion repository of the Massive Blockchain Voting System (DOI: 10.5281/zenodo.18780038).",
+    "creators": [
+        {
+            "name": "Martínez Santiago, Ilhuitemoc Jesús",
+            "affiliation": "National Autonomous University of Mexico (UNAM)"
+        }
+    ],
+    "keywords": [
+        "anomaly detection",
+        "voting data",
+        "big data",
+        "PySpark",
+        "MongoDB",
+        "LSTM",
+        "recurrent neural networks",
+        "Docker",
+        "electoral data",
+        "AutoML"
+    ],
+    "license": "MIT",
+    "related_identifiers": [
+        {
+            "identifier": "10.5281/zenodo.18780038",
+            "relation": "isSupplementTo",
+            "scheme": "doi"
+        }
+    ]
+}
